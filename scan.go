@@ -37,8 +37,6 @@ func Scan(timeout time.Duration, abortAfterFirst bool) []string {
 		cancel:   cancel,
 	}
 
-	defer close(s.framedCh)
-
 	candidates, err := serial.GetPortsList()
 	if err != nil {
 		log.Fatal(err)
@@ -46,8 +44,6 @@ func Scan(timeout time.Duration, abortAfterFirst bool) []string {
 
 	var framed []string
 
-	// collect the paths of serial devices we discover to have something
-	// that emits a HDLC framed protocol.
 	go func() {
 		for path := range s.framedCh {
 			framed = append(framed, path)
@@ -64,7 +60,6 @@ func Scan(timeout time.Duration, abortAfterFirst bool) []string {
 	}
 
 	<-s.ctx.Done()
-	time.Sleep(500 * time.Millisecond)
 	return framed
 }
 
